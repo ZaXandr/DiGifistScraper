@@ -30,33 +30,24 @@ search_category_id = data["them_id"][0]
 
 clicks_per_hour = int(data["clicks"][0]) // 24
 
-proxy_list = [
-    {
-        'http': 'http://a51hf4:ubXuGN@38.170.95.92:9829',
-        'https': 'https://a51hf4:ubXuGN@38.170.95.92:9829',
-        'no_proxy': 'localhost,127.0.0.1'
-    },
-    {
-        'http': 'http://sAHaKW:HcFqej@38.170.254.101:9867',
-        'https': 'https://sAHaKW:HcFqej@38.170.254.101:9867',
-        'no_proxy': 'localhost,127.0.0.1'
-    },
-    {
-        'http': 'http://UTLYhx:9AYdGy@194.67.215.190:9843',
-        'https': 'https://UTLYhx:9AYdGy@194.67.215.190:9843',
-        'no_proxy': 'localhost,127.0.0.1'
-    },
-    {
-        'http': 'http://DH3dZt:g0VftR@168.196.238.123:9217',
-        'https': 'https://DH3dZt:g0VftR@168.196.238.123:9217',
-        'no_proxy': 'localhost,127.0.0.1'
-    },
-    {
-        'http': 'http://557e8E:DKKsav@38.153.31.156:9251',
-        'https': 'https://557e8E:DKKsav@38.153.31.156:9251',
-        'no_proxy': 'localhost,127.0.0.1'
+proxy_list = []
+
+API_KEY = "Token 50xn49ng5y38gkca2zdy8q0akqhi5gsp0sl7rsqo"
+
+response = requests.get(
+    "https://proxy.webshare.io/api/v2/proxy/list/?mode=direct",
+    headers={"Authorization": API_KEY}
+)
+response_data = response.json()
+
+for obj in response_data["results"]:
+    proxy = {
+        "proxy_address": obj["proxy_address"],
+        "port": obj["port"],
+        "username": obj["username"],
+        "password": obj["password"]
     }
-]
+    proxy_list.append(proxy)
 
 def format_string(str):
     lowercase_string = str.lower()
@@ -125,12 +116,14 @@ for i in range(clicks_per_hour):
             cursor.close()
             conn.close()
 
-    selected_proxy = random.choice(proxy_list)
+    current_proxy = random.choice(proxy_list)
+    proxy_settings = f"{current_proxy['username']}:{current_proxy['password']}@{current_proxy['proxy_address']}:{current_proxy['port']}"
+
     proxy_options = {
         'proxy': {
-            'http': selected_proxy['http'],
-            'https': selected_proxy['https'],
-            'no_proxy': selected_proxy['no_proxy']
+            'http': 'http://'+proxy_settings,
+            'https': 'https://'+proxy_settings,
+            'no_proxy': 'localhost,127.0.0.1'
         }
     }
 
@@ -138,10 +131,11 @@ for i in range(clicks_per_hour):
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--disable-dev-shm-usage')
+    chrome_options.add_argument('--blink-settings=imagesEnabled=false')
 
     driver_path = "/usr/bin/chromedriver"
     service = Service(driver_path)
-    driver = webdriver.Chrome(seleniumwire_options=proxy_options)
+    driver = webdriver.Chrome(seleniumwire_options=proxy_options,options=chrome_options,service=service)
 
     driver.maximize_window()
     print(url + "page=" + str(page_num) + "&sort_by=most_relevant")
