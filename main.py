@@ -34,20 +34,26 @@ proxy_list = []
 
 API_KEY = "Token 50xn49ng5y38gkca2zdy8q0akqhi5gsp0sl7rsqo"
 
-response = requests.get(
-    "https://proxy.webshare.io/api/v2/proxy/list/?mode=direct",
-    headers={"Authorization": API_KEY}
-)
-response_data = response.json()
+i = 1
 
-for obj in response_data["results"]:
-    proxy = {
-        "proxy_address": obj["proxy_address"],
-        "port": obj["port"],
-        "username": obj["username"],
-        "password": obj["password"]
-    }
-    proxy_list.append(proxy)
+while True:
+    response = requests.get(
+    f"https://proxy.webshare.io/api/v2/proxy/list/?mode=direct&page={i}&page_size=100",
+    headers={"Authorization": API_KEY}
+    )
+    response_data = response.json()
+    print(response_data)
+    for obj in response_data["results"]:
+        proxy = {
+            "proxy_address": obj["proxy_address"],
+            "port": obj["port"],
+            "username" : obj["username"],
+            "password": obj["password"]
+        }
+        proxy_list.append(proxy)
+    i += 1
+    if response_data["next"] is None:
+        break
 
 def format_string(str):
     lowercase_string = str.lower()
@@ -63,7 +69,7 @@ def format_arr(arr, unit):
 
 
 def get_random_sleep(N):
-    average = (3500 - 60 * N) / N
+    average = 3500 / N
     return random.randint(int(average * 0.75), int(average * 1.25))
 
 
