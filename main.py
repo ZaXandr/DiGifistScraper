@@ -18,6 +18,7 @@ import json
 arguments = sys.argv
 
 json_str = arguments[1]
+json_str = '{"them_name":["Sahara"],"category":["Health and beauty"],"clicks":["700"],"price":[],"catalog_size":[],"features":[],"them_id":["1006"]}'
 data = json.loads(json_str)
 
 search_text = data["them_name"][0]
@@ -42,7 +43,6 @@ while True:
     headers={"Authorization": API_KEY}
     )
     response_data = response.json()
-    print(response_data)
     for obj in response_data["results"]:
         proxy = {
             "proxy_address": obj["proxy_address"],
@@ -100,7 +100,6 @@ for i in range(clicks_per_hour):
 
     for page_num in range(1, max_pages + 1):
         url_t = url_template.format(page_num=page_num)
-        print(url_t)
         page = requests.get(url_t)
         soup = BeautifulSoup(page.content, 'html.parser')
 
@@ -153,6 +152,10 @@ for i in range(clicks_per_hour):
         them_style.click()
         theme_to_click = driver.find_element(By.XPATH, f"//span[contains(text(), '{search_text}')]")
         theme_to_click.click()
+        view_to_click = driver.find_element(By.XPATH, "//a[contains(@class, 'marketing-button marketing-button--secondary theme-preview-link tw-text-body-md tw-link-base tw-link-inverted tw-link-md tw-border-t-0 tw-border-r-0 tw-border-l-0 tw-rounded-none tw-p-0 !tw-ml-0 hover:tw-bg-transparent')]")
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", view_to_click)
+        time.sleep(2)
+        view_to_click.click()
     except NoSuchElementException:
         print("Тема без стилей")
         try:
@@ -160,6 +163,10 @@ for i in range(clicks_per_hour):
             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", theme_to_click)
             time.sleep(1)
             theme_to_click.click()
+            view_to_click = driver.find_element(By.XPATH, "//a[contains(@class, 'marketing-button marketing-button--secondary theme-preview-link tw-text-body-md tw-link-base tw-link-inverted tw-link-md tw-border-t-0 tw-border-r-0 tw-border-l-0 tw-rounded-none tw-p-0 !tw-ml-0 hover:tw-bg-transparent')]")
+            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", view_to_click)
+            time.sleep(2)
+            view_to_click.click()
         except NoSuchElementException:
             print("не найден элемент дял килка")
 
