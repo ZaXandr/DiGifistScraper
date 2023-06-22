@@ -18,7 +18,7 @@ import json
 arguments = sys.argv
 
 json_str = arguments[1]
-json_str = '{"them_name":["Sahara"],"category":["Health and beauty"],"clicks":["700"],"price":[],"catalog_size":[],"features":[],"them_id":["1006"]}'
+#json_str = '{"them_name":["Sahara"],"category":["Health and beauty"],"clicks":["700"],"price":[],"catalog_size":[],"features":[],"them_id":["1006"]}'
 data = json.loads(json_str)
 
 search_text = data["them_name"][0]
@@ -28,8 +28,8 @@ price = data["price"]
 catalog_size = data["catalog_size"]
 features = data["features"]
 search_category_id = data["them_id"][0]
-
 clicks_per_hour = int(data["clicks"][0]) // 24
+second_click = bool(data["second_click"][0])
 
 proxy_list = []
 
@@ -152,23 +152,24 @@ for i in range(clicks_per_hour):
         them_style.click()
         theme_to_click = driver.find_element(By.XPATH, f"//span[contains(text(), '{search_text}')]")
         theme_to_click.click()
-        view_to_click = driver.find_element(By.XPATH, "//a[contains(@class, 'marketing-button marketing-button--secondary theme-preview-link tw-text-body-md tw-link-base tw-link-inverted tw-link-md tw-border-t-0 tw-border-r-0 tw-border-l-0 tw-rounded-none tw-p-0 !tw-ml-0 hover:tw-bg-transparent')]")
-        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", view_to_click)
-        time.sleep(2)
-        view_to_click.click()
+        if second_click:
+            view_to_click = driver.find_element(By.XPATH, "//a[contains(@class, 'marketing-button marketing-button--secondary theme-preview-link tw-text-body-md tw-link-base tw-link-inverted tw-link-md tw-border-t-0 tw-border-r-0 tw-border-l-0 tw-rounded-none tw-p-0 !tw-ml-0 hover:tw-bg-transparent')]")
+            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", view_to_click)
+            time.sleep(2)
+            view_to_click.click()
     except NoSuchElementException:
-        print("Тема без стилей")
         try:
             theme_to_click = driver.find_element(By.XPATH, f"//span[contains(text(), '{search_text}')]")
             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", theme_to_click)
             time.sleep(1)
             theme_to_click.click()
-            view_to_click = driver.find_element(By.XPATH, "//a[contains(@class, 'marketing-button marketing-button--secondary theme-preview-link tw-text-body-md tw-link-base tw-link-inverted tw-link-md tw-border-t-0 tw-border-r-0 tw-border-l-0 tw-rounded-none tw-p-0 !tw-ml-0 hover:tw-bg-transparent')]")
-            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", view_to_click)
-            time.sleep(2)
-            view_to_click.click()
+            if second_click:
+                view_to_click = driver.find_element(By.XPATH, "//a[contains(@class, 'marketing-button marketing-button--secondary theme-preview-link tw-text-body-md tw-link-base tw-link-inverted tw-link-md tw-border-t-0 tw-border-r-0 tw-border-l-0 tw-rounded-none tw-p-0 !tw-ml-0 hover:tw-bg-transparent')]")
+                driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", view_to_click)
+                time.sleep(2)
+                view_to_click.click()
         except NoSuchElementException:
-            print("не найден элемент дял килка")
+            print("element not found")
 
     driver.quit()
     time.sleep(int(get_random_sleep(clicks_per_hour)))
